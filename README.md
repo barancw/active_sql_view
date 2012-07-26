@@ -119,43 +119,45 @@ For a more detailed example see: http://stackoverflow.com/questions/6900508/how-
           update_view
 
           def self.set_user( user )
-            @user = user
+            if !self.get_user.nil?
+                @user = user
 
-            puts @user.email
+                puts @user.email
 
-            self.column :raw_local, :string
-            self.column :union_id, :integer
-            self.column :raw_phone_number, :string
-            self.column :extension, :string
-            self.column :trade_id, :integer
-            self.column :trade_name, :string
-            self.column :trade_prefix, :string
+                self.column :raw_local, :string
+                self.column :union_id, :integer
+                self.column :raw_phone_number, :string
+                self.column :extension, :string
+                self.column :trade_id, :integer
+                self.column :trade_name, :string
+                self.column :trade_prefix, :string
 
-            self.add_selects do
-              [
-                (unions.id.as union_id),
-                (unions.local_number.as raw_local),
-                (unions.phone_number.as raw_phone_number),
-                (unions.extension.as extension),
-                (trades.id.as trade_id),
-                (trades.name.as trade_name),
-                (trades.prefix.as trade_prefix)
-              ]
+                self.add_selects do
+                  [
+                    (unions.id.as union_id),
+                    (unions.local_number.as raw_local),
+                    (unions.phone_number.as raw_phone_number),
+                    (unions.extension.as extension),
+                    (trades.id.as trade_id),
+                    (trades.name.as trade_name),
+                    (trades.prefix.as trade_prefix)
+                  ]
+                end
+
+                self.add_joins do
+                  [ (unit.plant.services.union.trade) ]
+                end
+
+                self.add_wheres do
+                  unit.plant.services.union.trade_id.eq my{@user.trade.id}
+                end
+
+
+                self.update_view
+
+              self.belongs_to :union
+              self.belongs_to :trade
             end
-
-            self.add_joins do
-              [ (unit.plant.services.union.trade) ]
-            end
-
-            self.add_wheres do
-              unit.plant.services.union.trade_id.eq my{@user.trade.id}
-            end
-
-
-            self.update_view
-
-            self.belongs_to :union
-            self.belongs_to :trade
           end
         end
 

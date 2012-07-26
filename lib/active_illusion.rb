@@ -96,7 +96,9 @@ module ActiveRecord
     end
 
 
-
+    def self.displayed_columns
+      @columns_hash.keys
+    end
 
     def self.def_base_object
       @@base_object_procs = [ Proc.new{ yield } ]
