@@ -8,7 +8,7 @@ This gem creates an ActiveRecord relation that you can easily plug into anything
 
 For example
 
-`
+
     class Award < ActiveRecord::Base
      has_many :award_type_view
     end
@@ -26,7 +26,7 @@ For example
      end
 
     end
-`
+
 
 The cool thing is, is that the relations work on both directions
 
@@ -59,7 +59,7 @@ For a more detailed example see: http://stackoverflow.com/questions/6900508/how-
 # Updated Example To Show Expanded Functions #
 
 
-       `class OutageView < ActiveRecord::Illusion
+       class OutageView < ActiveRecord::Illusion
           belongs_to :outage
           belongs_to :plant
           belongs_to :unit
@@ -157,7 +157,7 @@ For a more detailed example see: http://stackoverflow.com/questions/6900508/how-
             self.belongs_to :union
             self.belongs_to :trade
           end
-        end`
+        end
 
 # Features #
 
