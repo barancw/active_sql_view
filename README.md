@@ -167,3 +167,6 @@ All you need to do is pass an array in a block that is correct Squeel syntax!
 You can alter your view at runtime with the add_* functions.  Be sure to call update_view afterword and like magic you've got a new view.
 
 Everything returned is an ActiveRecord Relation object.  You can all a simple .where{ col_name.eq "anything" } on any of the columns in your view just as you would with a real table!
+
+## Update View Based On User ##
+This example shows how to add conditional logic to the view based on a user.  You can add columns anyway you like during runtime.  You can even define new associations after the initial defines.  Everything still works with your active record methods!
