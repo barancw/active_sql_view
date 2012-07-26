@@ -78,12 +78,12 @@ module ActiveRecord
       end
     end
 
-    def self.column(name, sql_type = :string, default = nil, null = true)  
-      column = ActiveRecord::ConnectionAdapters::Column.new(name.to_s, default, sql_type.to_s, null)  
+    def self.column(name, sql_type = :string, default = nil, null = true)
+      column = ActiveRecord::ConnectionAdapters::Column.new(name.to_s, default, sql_type.to_s, null)
 
       columns << column
-      columns_hash[name.to_s] = column   
-    end  
+      columns_hash[name.to_s] = column
+    end
 
     self.abstract_class = true
 
@@ -93,6 +93,84 @@ module ActiveRecord
 
     def readonly?
       true
+    end
+
+
+
+
+    def self.def_base_object
+      @@base_object_procs = [ Proc.new{ yield } ]
+    end
+
+    def self.add_scope_to_base( name_as_symbol )
+      @@base_object_procs.push Proc.new{ |base_object| base_object.send name_as_symbol }
+    end
+
+    def self.clear_base_scopes()
+      @@base_object_procs = [ @base_object_procs.first ]
+    end
+
+    def self.def_selects(&block)
+      @@selects_procs = [ Proc.new{ |base_object| base_object.select{ self.instance_eval(&block) } } ]
+    end
+
+    def self.add_selects(&block)
+      @@selects_procs.push Proc.new{ |base_object| base_object.select{ self.instance_eval(&block) } }
+    end
+
+    def self.def_joins(&block)
+      @@joins_procs = [ Proc.new{ |base_object| base_object.joins{ self.instance_eval(&block) } } ]
+    end
+
+    def self.add_joins(&block)
+      @@joins_procs.push Proc.new{ |base_object| base_object.joins{ self.instance_eval(&block) } }
+    end
+
+    def self.def_wheres(&block)
+      @@wheres_procs = [ Proc.new{ |base_object| base_object.where{ self.instance_eval(&block) } } ]
+    end
+
+    def self.add_wheres(&block)
+      @@wheres_procs.push Proc.new{ |base_object| base_object.where{ self.instance_eval(&block) } }
+    end
+
+    def self.base_object_name
+      self.get_base_object.to_s
+    end
+
+    def self.to_sql
+      self.get_base_with_joins_selects_object.to_sql
+    end
+
+    def self.get_base_object
+      @@base_object_procs.inject{ |acc, proc| proc.call acc }
+    end
+
+    def self.get_array
+      (@@base_object_procs + @@joins_procs + @@selects_procs)
+    end
+
+
+
+    private
+
+      @@base_object_procs = []
+      @@selects_procs = []
+      @@joins_procs = []
+      @@wheres_procs = []
+
+
+
+
+    def self.get_base_with_joins_selects_object
+      (@@base_object_procs[1..-1] + @@joins_procs + @@selects_procs + @@wheres_procs).inject(@@base_object_procs.first.call) { |acc, proc| proc.call acc }
+    end
+
+
+    def self.update_view
+      view do
+        self.get_base_with_joins_selects_object
+      end
     end
 
   end
