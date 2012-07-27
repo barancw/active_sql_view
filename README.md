@@ -119,10 +119,8 @@ For a more detailed example see: http://stackoverflow.com/questions/6900508/how-
           update_view
 
           def self.set_user( user )
-            if !self.get_user.nil?
+            if self.get_user.nil?
                 @user = user
-
-                puts @user.email
 
                 self.column :raw_local, :string
                 self.column :union_id, :integer
