@@ -8,6 +8,6 @@ Gem::Specification.new do |s|
   s.authors     = ["Brad Phelan", "Christopher Baran"]
   s.version     = "0.0.2"
   s.platform    = Gem::Platform::RUBY
-  s.add_dependency  'activerecord', '>= 3.1.0.rc4'  
+  s.add_dependency  'activerecord', '>= 3.2.5'  
   s.add_dependency  'squeel', '>= 0.8.5'  
 end
