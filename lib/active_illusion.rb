@@ -61,6 +61,21 @@ module ActiveRecord
       end
 
 
+      def set_default_sort( col, order )
+        col = col.to_s if col.is_a?(Symbol)
+        order = order.to_s if order.is_a?(Symbol)
+        @default_sort_column = col
+        @default_sort_order = order
+      end
+
+      def default_sort_column
+        @default_sort_column
+      end
+
+      def default_sort_order
+        @default_sort_order
+      end
+
 
       def displayed_columns()
         @displayed_columns ||= []
@@ -235,3 +250,4 @@ module ActiveRecord
 
   end
 end
+
