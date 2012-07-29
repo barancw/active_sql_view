@@ -177,7 +177,7 @@ module ActiveRecord
       end
 
       def clear_base_scopes()
-        @@base_object_procs = [ @base_object_procs.first ]
+        @@base_object_procs = [ @@base_object_procs.first ]
       end
 
       def def_selects(&block)
