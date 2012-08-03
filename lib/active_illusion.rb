@@ -89,6 +89,10 @@ module ActiveRecord
         @default_shown_columns ||= []
       end
 
+      def links_to_columns()
+        @links_to_columns ||= Hash[]
+      end
+
 
       def find_all
         raise "please override"
@@ -112,14 +116,18 @@ module ActiveRecord
       def column(name, sql_type = :string, default = nil, null = true)
         column = ActiveRecord::ConnectionAdapters::Column.new(name.to_s, default, sql_type.to_s, null)
 
-        columns << column
-        displayed_columns << column.name
-        columns_hash[name.to_s] = column
+        if !self.columns.include? column
+          columns << column
+          displayed_columns << column.name
+          columns_hash[name.to_s] = column
+        end
       end
 
       def default_shown_column( col )
         col = col.to_s if col.is_a?(Symbol)
-        default_shown_columns.push col
+        if !default_shown_columns.include? col
+          default_shown_columns.push col
+        end
       end
 
       def hide_column( col )
@@ -138,6 +146,35 @@ module ActiveRecord
           return true
         end
         false
+      end
+
+      def links_to_column( col, link_id_col )
+        links_to_columns[col] = link_id_col
+      end
+
+      def links_to?( col )
+        if links_to_columns.keys.include? col
+          return true
+        end
+
+        false
+      end
+
+      def links_to( col )
+        if links_to_columns.keys.include? col
+          links_to_columns[col]
+        else
+          nil
+        end
+      end
+
+      def delete_column_if_exists( col )
+        col = col.to_s if col.is_a?(Symbol)
+        default_shown_columns.delete( col ) if default_shown_columns.include? col
+        displayed_columns.delete( col ) if displayed_columns.include? col
+        hidden_columns.delete( col ) if hidden_columns.include? col
+        columns_hash.delete( col ) if columns_hash.has_key? col
+        columns.delete_if { |column| column.name == col }
       end
 
       def column_shown?( col )
@@ -174,6 +211,30 @@ module ActiveRecord
       def set_scope_to_base( name_as_symbol )
         self.clear_base_scopes
         self.add_scope_to_base( name_as_symbol )
+      end
+
+      def reset_to_base_defs
+        self.clear_base_scopes
+        self.clear_to_base_where
+        self.clear_to_base_selects
+        self.clear_to_base_joins
+      end
+
+      def clear_to_base_where
+        @@wheres_procs = self.clear_to_base( @@wheres_procs )
+      end
+
+      def clear_to_base_selects
+        @@selects_procs = self.clear_to_base( @@selects_procs )
+      end
+
+      def clear_to_base_joins
+        @@joins_procs = self.clear_to_base( @@joins_procs )
+      end
+
+      def clear_to_base( proc_array )
+        return [ proc_array[0] ] if proc_array.size > 1
+        proc_array
       end
 
       def clear_base_scopes()
